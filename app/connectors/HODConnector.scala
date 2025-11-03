@@ -61,17 +61,26 @@ class HODConnector @Inject() (
       def getCorrelationId(isAmendment: Boolean): String =
         if (isAmendment) declaration.amendCorrelationId.getOrElse(throw new Exception(s"AmendCorrelation Id is empty"))
         else declaration.correlationId
-
-      val tokenToUse = if (isUsingCMA) cmaBearerToken else bearerToken
-
-      HeaderCarrier()
-        .withExtraHeaders(
-          HeaderNames.ACCEPT        -> ContentTypes.JSON,
-          HeaderNames.DATE          -> now,
-          HeaderNames.AUTHORIZATION -> s"Bearer $tokenToUse",
-          CORRELATION_ID            -> getCorrelationId(isAmendment),
-          FORWARDED_HOST            -> MDTP
-        )
+      
+      if (isUsingCMA)
+        HeaderCarrier()
+          .withExtraHeaders(
+            HeaderNames.ACCEPT        -> ContentTypes.JSON,
+            HeaderNames.CONTENT_TYPE  -> ContentTypes.JSON,
+            HeaderNames.DATE          -> now,
+            HeaderNames.AUTHORIZATION -> s"Bearer $cmaBearerToken",
+            CORRELATION_ID            -> getCorrelationId(isAmendment),
+            FORWARDED_HOST            -> MDTP
+          )
+      else
+        HeaderCarrier()
+          .withExtraHeaders(
+            HeaderNames.ACCEPT        -> ContentTypes.JSON,
+            HeaderNames.DATE          -> now,
+            HeaderNames.AUTHORIZATION -> s"Bearer $bearerToken",
+            CORRELATION_ID            -> getCorrelationId(isAmendment),
+            FORWARDED_HOST            -> MDTP
+          )
     }
 
     def getRefinedData(dataOrAmendData: JsObject): JsObject =
