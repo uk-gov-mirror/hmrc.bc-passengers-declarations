@@ -47,7 +47,8 @@ class HODConnector @Inject() (
 
   private lazy val isUsingCMA: Boolean = config.get[Boolean]("feature.isUsingCMA")
 
-  private val bearerToken = config.get[String]("microservice.services.des.bearer-token")
+  private val bearerToken    = config.get[String]("microservice.services.des.bearer-token")
+  private val cmaBearerToken = config.get[String]("microservice.services.des.bearer-token")
 
   private val CORRELATION_ID: String = "X-Correlation-ID"
   private val FORWARDED_HOST: String = "X-Forwarded-Host"
@@ -61,11 +62,13 @@ class HODConnector @Inject() (
         if (isAmendment) declaration.amendCorrelationId.getOrElse(throw new Exception(s"AmendCorrelation Id is empty"))
         else declaration.correlationId
 
+      val tokenToUse = if (isUsingCMA) cmaBearerToken else bearerToken
+
       HeaderCarrier()
         .withExtraHeaders(
           HeaderNames.ACCEPT        -> ContentTypes.JSON,
           HeaderNames.DATE          -> now,
-          HeaderNames.AUTHORIZATION -> s"Bearer $bearerToken",
+          HeaderNames.AUTHORIZATION -> s"Bearer $tokenToUse",
           CORRELATION_ID            -> geCorrelationId(isAmendment),
           FORWARDED_HOST            -> MDTP
         )
