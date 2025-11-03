@@ -67,20 +67,13 @@ class HODConnector @Inject() (
 
       if (isUsingCMA)
 
-        val date: DateTimeFormatter =
-          new DateTimeFormatterBuilder()
-            .parseCaseInsensitive()
-            .appendPattern("EEE, dd MMM uuuu HH:mm:ss 'GMT'")
-            .toFormatter(Locale.ENGLISH)
-            .withZone(ZoneOffset.UTC)
-
-        val now = date.format(Instant.now())
+        val CMANow = HODConnector.dateFormatter.format(Instant.now())
 
         HeaderCarrier()
           .withExtraHeaders(
             HeaderNames.ACCEPT        -> ContentTypes.JSON,
             HeaderNames.CONTENT_TYPE  -> ContentTypes.JSON,
-            HeaderNames.DATE          -> now,
+            HeaderNames.DATE          -> CMANow,
             HeaderNames.AUTHORIZATION -> s"Bearer $cmaBearerToken",
             CORRELATION_ID            -> getCorrelationId(isAmendment),
             FORWARDED_HOST            -> MDTP
@@ -170,4 +163,13 @@ class HODConnector @Inject() (
     }
 
   }
+}
+
+private object HODConnector {
+  private val dateFormatter: DateTimeFormatter =
+    new DateTimeFormatterBuilder()
+      .parseCaseInsensitive()
+      .appendPattern("EEE, dd MMM uuuu HH:mm:ss 'GMT'")
+      .toFormatter(Locale.ENGLISH)
+      .withZone(ZoneOffset.UTC)
 }
