@@ -48,7 +48,7 @@ class HODConnector @Inject() (
   private lazy val isUsingCMA: Boolean = config.get[Boolean]("feature.isUsingCMA")
 
   private val bearerToken    = config.get[String]("microservice.services.des.bearer-token")
-  private val cmaBearerToken = config.get[String]("microservice.services.des.bearer-token")
+  private val cmaBearerToken = config.get[String]("microservice.services.des.cma.bearer-token")
 
   private val CORRELATION_ID: String = "X-Correlation-ID"
   private val FORWARDED_HOST: String = "X-Forwarded-Host"
