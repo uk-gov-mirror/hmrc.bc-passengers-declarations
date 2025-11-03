@@ -29,6 +29,9 @@ import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 import play.api.libs.ws.writeableOf_JsValue
 
+import java.time.{Instant, ZoneOffset}
+import java.time.format.{DateTimeFormatter, DateTimeFormatterBuilder}
+import java.util.Locale
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -62,16 +65,28 @@ class HODConnector @Inject() (
         if (isAmendment) declaration.amendCorrelationId.getOrElse(throw new Exception(s"AmendCorrelation Id is empty"))
         else declaration.correlationId
 
-      val tokenToUse = if (isUsingCMA) cmaBearerToken else bearerToken
+      if (isUsingCMA)
 
-      HeaderCarrier()
-        .withExtraHeaders(
-          HeaderNames.ACCEPT        -> ContentTypes.JSON,
-          HeaderNames.DATE          -> now,
-          HeaderNames.AUTHORIZATION -> s"Bearer $tokenToUse",
-          CORRELATION_ID            -> getCorrelationId(isAmendment),
-          FORWARDED_HOST            -> MDTP
-        )
+        val CMANow = HODConnector.dateFormatter.format(Instant.now())
+
+        HeaderCarrier()
+          .withExtraHeaders(
+            HeaderNames.ACCEPT        -> ContentTypes.JSON,
+            HeaderNames.CONTENT_TYPE  -> ContentTypes.JSON,
+            HeaderNames.DATE          -> CMANow,
+            HeaderNames.AUTHORIZATION -> s"Bearer $cmaBearerToken",
+            CORRELATION_ID            -> getCorrelationId(isAmendment),
+            FORWARDED_HOST            -> MDTP
+          )
+      else
+        HeaderCarrier()
+          .withExtraHeaders(
+            HeaderNames.ACCEPT        -> ContentTypes.JSON,
+            HeaderNames.DATE          -> now,
+            HeaderNames.AUTHORIZATION -> s"Bearer $bearerToken",
+            CORRELATION_ID            -> getCorrelationId(isAmendment),
+            FORWARDED_HOST            -> MDTP
+          )
     }
 
     def getRefinedData(dataOrAmendData: JsObject): JsObject =
@@ -148,4 +163,13 @@ class HODConnector @Inject() (
     }
 
   }
+}
+
+private object HODConnector {
+  private val dateFormatter: DateTimeFormatter =
+    new DateTimeFormatterBuilder()
+      .parseCaseInsensitive()
+      .appendPattern("EEE, dd MMM uuuu HH:mm:ss 'GMT'")
+      .toFormatter(Locale.ENGLISH)
+      .withZone(ZoneOffset.UTC)
 }

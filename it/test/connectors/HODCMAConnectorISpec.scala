@@ -61,7 +61,7 @@ class HODCMAConnectorISpec
       .withHeader("X-Correlation-ID", matching(correlationId))
       .withHeader("Authorization", matching("Bearer changeme"))
       .withHeader("X-Forwarded-Host", matching("MDTP"))
-      .withHeader(DATE, matching("""^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$"""))
+      .withHeader(DATE, matching("""^(Mon|Tue|Wed|Thu|Fri|Sat|Sun), \d{2} (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4} \d{2}:\d{2}:\d{2} GMT$"""))
       .withRequestBody(equalTo(Json.stringify(Json.toJsObject(data.as[Etmp]))))
 
   private lazy val connector: HODConnector = inject[HODConnector]
