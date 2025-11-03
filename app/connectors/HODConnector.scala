@@ -28,6 +28,10 @@ import play.api.libs.json.{JsError, JsObject, Json}
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 import play.api.libs.ws.writeableOf_JsValue
+import java.time.ZonedDateTime
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -61,8 +65,10 @@ class HODConnector @Inject() (
       def getCorrelationId(isAmendment: Boolean): String =
         if (isAmendment) declaration.amendCorrelationId.getOrElse(throw new Exception(s"AmendCorrelation Id is empty"))
         else declaration.correlationId
-      
+
       if (isUsingCMA)
+        val now = ZonedDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.RFC_1123_DATE_TIME.withLocale(Locale.ENGLISH))
+
         HeaderCarrier()
           .withExtraHeaders(
             HeaderNames.ACCEPT        -> ContentTypes.JSON,
