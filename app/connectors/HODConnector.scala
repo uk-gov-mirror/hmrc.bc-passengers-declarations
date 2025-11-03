@@ -28,11 +28,10 @@ import play.api.libs.json.{JsError, JsObject, Json}
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 import play.api.libs.ws.writeableOf_JsValue
-import java.time.ZonedDateTime
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 
+import java.time.{Instant, ZoneOffset}
+import java.time.format.{DateTimeFormatter, DateTimeFormatterBuilder}
+import java.util.Locale
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -67,7 +66,15 @@ class HODConnector @Inject() (
         else declaration.correlationId
 
       if (isUsingCMA)
-        val now = ZonedDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.RFC_1123_DATE_TIME.withLocale(Locale.ENGLISH))
+
+        val date: DateTimeFormatter =
+          new DateTimeFormatterBuilder()
+            .parseCaseInsensitive()
+            .appendPattern("EEE, dd MMM uuuu HH:mm:ss 'GMT'")
+            .toFormatter(Locale.ENGLISH)
+            .withZone(ZoneOffset.UTC)
+
+        val now = date.format(Instant.now())
 
         HeaderCarrier()
           .withExtraHeaders(
