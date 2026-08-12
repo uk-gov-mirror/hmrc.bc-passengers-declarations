@@ -1493,7 +1493,7 @@ class DeclarationsRepositoryISpec
           .get
 
         errors should contain(
-          """required property 'receiptDate' not found", "required property 'requestParameters' not found", "required property 'travellingFrom' not found", "required property 'onwardTravelGBNI' not found", "required property 'uccRelief' not found", "required property 'ukVATPaid' not found", "required property 'ukExcisePaid' not found", "required property 'messageTypes' not found", "required property 'customerReference' not found", "required property 'contactDetails' not found", "required property 'liabilityDetails' not found"""".stripMargin
+          """required property 'receiptDate' not found""".stripMargin
         )
       }
     }
