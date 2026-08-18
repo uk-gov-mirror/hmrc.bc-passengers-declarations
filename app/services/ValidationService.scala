@@ -17,6 +17,7 @@
 package services
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.json.JsonMapper
 import com.google.inject.Inject
 import com.networknt.schema.{Schema, SchemaRegistry, SpecificationVersion}
 import play.api.Configuration
@@ -28,7 +29,7 @@ class Validator(schema: Schema) {
 
   def validate(jsValue: JsValue): List[String] = {
 
-    val mapper = new ObjectMapper()
+    val mapper = JsonMapper.builder().build()
     val json   = mapper.readTree(Json.stringify(jsValue))
     val result = schema.validate(json)
 
